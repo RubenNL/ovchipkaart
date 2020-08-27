@@ -25,4 +25,4 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
-      run: mvn -Dmaven.test.skip=true -B package --file pom.xml
+      run: mvn -Dmaven.test.skip=true -B compile --file pom.xml
