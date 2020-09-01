@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 
-public class Connector {
+public class SQLConnector {
 	private static Connection conn;
 	static {
 		Properties prop = new Properties();

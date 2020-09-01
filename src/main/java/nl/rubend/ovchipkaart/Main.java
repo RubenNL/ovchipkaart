@@ -1,21 +1,43 @@
 package nl.rubend.ovchipkaart;
 
 import java.sql.*;
+import java.util.List;
 
 public class Main {
-	public static void main(String[] args) {
-		try {
-			PreparedStatement statement=Connector.getConn().prepareStatement("select reiziger_id,voorletters,tussenvoegsel,achternaam,geboortedatum from reiziger;");
-			statement.execute();
-			ResultSet set=statement.getResultSet();
-			System.out.println("Alle reizigers:");
-			while(set.next()) {
-				String tussenvoegsel=set.getString(3);
-				System.out.println("\t#"+set.getInt(1)+": "+set.getString(2)+". "+(tussenvoegsel==null?"":tussenvoegsel+" ")+set.getString(4)+" ("+set.getDate(5)+")");
-			}
-		} catch (SQLException exception) {
-			exception.printStackTrace();
-		}
+	public static void main(String[] args) throws SQLException {
+		testReizigerDAO(new ReizigerDAOPsql());
+	}
+	private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {
+		System.out.println("\n---------- Test ReizigerDAO -------------");
 
+		// Haal alle reizigers op uit de database
+		List<Reiziger> reizigers = rdao.findAll();
+		System.out.println("[Test] ReizigerDAO.findAll() geeft de volgende reizigers:");
+		for (Reiziger r : reizigers) {
+			System.out.println(r);
+		}
+		System.out.println();
+
+		// Maak een nieuwe reiziger aan en persisteer deze in de database
+		String gbdatum = "1981-03-14";
+		Reiziger sietske = new Reiziger(77, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+		System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
+		rdao.save(sietske);
+		reizigers = rdao.findAll();
+		System.out.println(reizigers.size() + " reizigers\n");
+
+		System.out.println("[Test]Oude geboortedatum:"+sietske.getGeboortedatum());
+		sietske.setGeboortedatum(java.sql.Date.valueOf("1991-03-14"));
+		rdao.update(sietske);
+
+		//Zou de nieuwe geboortedatum moeten geven
+		System.out.println("[Test]Nieuwe geboortedatum:"+rdao.findById(77).getGeboortedatum());
+
+		System.out.println("[Test]zoeken op geboortedatum:" + rdao.findByGebDatum("1991-03-14"));
+
+		//En verwijderen.
+		rdao.delete(sietske);
+		//Nu zou hij niet meer te vinden moeten zijn?
+		System.out.println("[Test]Zou leeg moeten zijn: "+rdao.findById(77));
 	}
 }
