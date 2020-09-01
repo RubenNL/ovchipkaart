@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Main {
 	public static void main(String[] args) throws SQLException {
-		testReizigerDAO(new ReizigerDAOPsql());
+		testReizigerDAO(new ReizigerDAOPsql(SQLConnector.getConn()));
 	}
 	private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {
 		System.out.println("\n---------- Test ReizigerDAO -------------");

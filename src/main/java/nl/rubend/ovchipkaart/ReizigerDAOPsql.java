@@ -1,5 +1,6 @@
 package nl.rubend.ovchipkaart;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
+	private Connection conn;
+	public ReizigerDAOPsql(Connection conn) {this.conn=conn;};
 	private Reiziger setToReiziger(ResultSet set) throws SQLException {
 		return new Reiziger(set.getInt("reiziger_id"), set.getString("voorletters"), set.getString("tussenvoegsel"), set.getString("achternaam"), set.getDate("geboortedatum"));
 	}
