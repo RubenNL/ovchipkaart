@@ -9,9 +9,15 @@ import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
 	private Connection conn;
-	public ReizigerDAOPsql(Connection conn) {this.conn=conn;};
+	private AdresDAO adao;
+	public ReizigerDAOPsql(Connection conn) {
+		this.conn=conn;
+		adao=new AdresDAOPsql(conn);
+	};
 	private Reiziger setToReiziger(ResultSet set) throws SQLException {
-		return new Reiziger(set.getInt("reiziger_id"), set.getString("voorletters"), set.getString("tussenvoegsel"), set.getString("achternaam"), set.getDate("geboortedatum"));
+		Reiziger reiziger=new Reiziger(set.getInt("reiziger_id"), set.getString("voorletters"), set.getString("tussenvoegsel"), set.getString("achternaam"), set.getDate("geboortedatum"));
+		reiziger.setAdres(adao.findByReiziger(reiziger));
+		return reiziger;
 	}
 
 	@Override
