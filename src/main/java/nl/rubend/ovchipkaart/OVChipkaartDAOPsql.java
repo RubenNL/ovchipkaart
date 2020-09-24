@@ -6,11 +6,15 @@ import java.util.List;
 
 public class OVChipkaartDAOPsql implements OVChipkaartDAO{
 	private Connection conn;
-	public OVChipkaartDAOPsql(Connection conn) {
+	private ProductDAO pdao;
+	public OVChipkaartDAOPsql(Connection conn,ProductDAO pdao) {
 		this.conn=conn;
+		this.pdao=pdao;
 	};
 	private OVChipkaart setToOVChipkaart(ResultSet set) throws SQLException {
-		return new OVChipkaart(set.getInt("kaart_nummer"), set.getDate("geldig_tot"), set.getInt("klasse"), set.getDouble("saldo"), set.getInt("reiziger_id"));
+		OVChipkaart ovchipkaart=new OVChipkaart(set.getInt("kaart_nummer"), set.getDate("geldig_tot"), set.getInt("klasse"), set.getDouble("saldo"), set.getInt("reiziger_id"));
+		ovchipkaart.setProducten(pdao.findByOVChipkaart(ovchipkaart));
+		return ovchipkaart;
 	}
 	@Override
 	public List<OVChipkaart> findByReizigerId(int reiziger_id) throws SQLException {
@@ -37,7 +41,7 @@ public class OVChipkaartDAOPsql implements OVChipkaartDAO{
 			statement.setDouble(4, ovChipkaart.getSaldo());
 			statement.setInt(5,ovChipkaart.getReiziger_id());
 			statement.executeUpdate();
-			return true;
+			return update(ovChipkaart);
 		} catch (Exception e) {
 			return false;
 		}
@@ -53,6 +57,15 @@ public class OVChipkaartDAOPsql implements OVChipkaartDAO{
 			statement.setInt(4, ovChipkaart.getReiziger_id());
 			statement.setInt(5, ovChipkaart.getKaart_nummer());
 			statement.executeUpdate();
+			statement = SQLConnector.getConn().prepareStatement("DELETE FROM ov_chipkaart_product WHERE kaart_nummer=?;");
+			statement.setInt(1, ovChipkaart.getKaart_nummer());
+			statement.executeUpdate();
+			statement = SQLConnector.getConn().prepareStatement("INSERT INTO ov_chipkaart_product(kaart_nummer, product_nummer) VALUES(?,?)");
+			statement.setInt(1,ovChipkaart.getKaart_nummer());
+			for(Product product:ovChipkaart.getProducten()) {
+				statement.setInt(2, product.getProduct_nummer());
+				statement.executeUpdate();
+			}
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -74,7 +87,7 @@ public class OVChipkaartDAOPsql implements OVChipkaartDAO{
 	@Override
 	public List<OVChipkaart> findAll() throws SQLException {
 		List<OVChipkaart> response=new ArrayList<>();
-		PreparedStatement statement= SQLConnector.getConn().prepareStatement("SELECT * FROM adres;");
+		PreparedStatement statement= SQLConnector.getConn().prepareStatement("SELECT * FROM ov_chipkaart;");
 		statement.execute();
 		ResultSet set=statement.getResultSet();
 		while(set.next()) response.add(setToOVChipkaart(set));

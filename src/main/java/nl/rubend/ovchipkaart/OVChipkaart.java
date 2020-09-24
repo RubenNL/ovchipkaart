@@ -1,6 +1,7 @@
 package nl.rubend.ovchipkaart;
 
 import java.util.Date;
+import java.util.List;
 
 public class OVChipkaart {
 	private int kaart_nummer;
@@ -8,6 +9,7 @@ public class OVChipkaart {
 	private int klasse;
 	private double saldo;
 	private int reiziger_id;
+	private List<Product> producten;
 	public OVChipkaart(int kaart_nummer,Date geldig_tot,int klasse,double saldo,int reiziger_id) {
 		this.kaart_nummer=kaart_nummer;
 		this.geldig_tot=geldig_tot;
@@ -54,5 +56,20 @@ public class OVChipkaart {
 
 	public void setReiziger_id(int reiziger_id) {
 		this.reiziger_id = reiziger_id;
+	}
+
+	public void setProducten(List<Product> producten) {
+		this.producten=producten;
+	}
+
+	public List<Product> getProducten() {
+		return this.producten;
+	}
+
+	public void addProduct(Product product) {
+		this.producten.add(product);
+	}
+	public void removeProduct(Product product) {
+		this.producten.remove(product);
 	}
 }
